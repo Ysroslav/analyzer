@@ -18,15 +18,15 @@ class CsvReaderTest {
 
         val ticks = csvReader.readTicks(stream)
 
-        assertEquals(2, ticks.size)
+        assertEquals(4, ticks.size)
         assertEquals("GC", ticks.first().ticker)
         assertEquals("4041.8".toDouble(), ticks.first().price)
-        assertEquals("4041.5".toDouble(), ticks.last().price)
+        assertEquals("327.5".toDouble(), ticks.last().price)
     }
 
     @Test
     fun shouldReadRealMarketFile() {
-        val stream = ClassPathResource("GC_260716_260716.csv").inputStream
+        val stream = ClassPathResource("source/GC_260716_260716.csv").inputStream
 
         val ticks = csvReader.readTicks(stream)
 
@@ -89,6 +89,34 @@ class CsvReaderTest {
         assertEquals("GC", ticks.first().ticker)
         assertEquals("4041.8".toDouble(), ticks.first().price)
         assertEquals("4041.5".toDouble(), ticks.last().price)
+    }
+
+    @Test
+    fun shouldTimeFormat () {
+        val csv = """
+            <TICKER>;<PER>;<DATE>;<TIME>;<LAST>;<VOL>
+            GC;0;20260716;253022;4041.8;1
+            GC;0;20260716;000000;4041.5;1
+        """.trimIndent()
+        val stream = ByteArrayInputStream(csv.toByteArray())
+
+        assertThatThrownBy { csvReader.readTicks(stream) }
+            .isInstanceOf(IllegalStateException::class.java)
+            .hasMessage("Cannot parse text: '20260716253022'")
+    }
+
+    @Test
+    fun shouldDateFormat () {
+        val csv = """
+            <TICKER>;<PER>;<DATE>;<TIME>;<LAST>;<VOL>
+            GC;0;20261416;000000;4041.8;1
+            GC;0;20260716;000000;4041.5;1
+        """.trimIndent()
+        val stream = ByteArrayInputStream(csv.toByteArray())
+
+        assertThatThrownBy { csvReader.readTicks(stream) }
+            .isInstanceOf(IllegalStateException::class.java)
+            .hasMessage("Cannot parse text: '20261416000000'")
     }
 
 

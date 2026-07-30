@@ -1,25 +1,44 @@
 package ru.bodrov.analyzer.service
 
+import org.springframework.stereotype.Service
+import ru.bodrov.analyzer.common.Timeframe
 import ru.bodrov.analyzer.model.Candle
 import ru.bodrov.analyzer.model.Tick
+import ru.bodrov.analyzer.source.TickSource
 import java.time.LocalDate
+import java.time.LocalDateTime
 import kotlin.time.Duration
 
-interface TickService {
+@Service
+class TickService(
+    private val tickSource: TickSource) {
 
-    // возвращает отфильтрованный список, не создает новый список
-    fun filterByTicker(ticks: List<Tick>, ticker: String): List<Tick>
+    fun loadTicks(): List<Tick> = tickSource.load()
 
-    // возвращает отфильтрованный список, не создает новый список
-    fun filterByPeriod(ticks: List<Tick>, period: Int): List<Tick>
+    fun filterByTicker(
+        ticks: List<Tick>,
+        ticker: String
+    ): List<Tick> = ticks.filter { it.ticker == ticker }
 
-    // возвращает отсортированный список, создает новый список
-    fun sortByDateTime(ticks: List<Tick>): List<Tick>
+    fun filterByPeriod(
+        ticks: List<Tick>,
+        period: Int
+    ): List<Tick> = ticks.filter { it.period == period }
 
-    // возвращает отфильтрованный список, не создает новый список
-    fun filterByDate(ticks: List<Tick>, from: LocalDate, to: LocalDate): List<Tick>
+    fun sortByDateTime(ticks: List<Tick>): List<Tick> =
+        ticks.sortedBy { it.dateTime }
+
+    fun filterByDate(
+        ticks: List<Tick>,
+        from: LocalDateTime,
+        to: LocalDateTime
+    ): List<Tick> = ticks.filter { it.dateTime in from..to }
 
     // агрегирует тики в свечи, всегда возвращает новый список
-    fun aggregateToCandles(ticks: List<Tick>, timeframe: Duration): List<Candle>
-
+    fun aggregateToCandles(
+        ticks: List<Tick>,
+        timeframe: Timeframe
+    ): List<Candle> {
+        TODO("Not yet implemented")
+    }
 }
