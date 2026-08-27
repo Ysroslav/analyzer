@@ -9,7 +9,7 @@ import ru.bodrov.analyzer.model.Tick
 @Component
 class CsvTickSource (
     private val csvReader: CsvReader,
-    @Value("\${source.GC_260716_260716.csv}") private val fileResource: Resource
+    @Value("\${source.csv}") private val fileResource: Resource
 ) : TickSource {
 
     override fun load(): List<Tick> = csvReader.readTicks(fileResource.inputStream)
