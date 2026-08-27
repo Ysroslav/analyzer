@@ -2,6 +2,7 @@ package ru.bodrov.analyzer
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.springframework.core.io.ClassPathResource
+import ru.bodrov.analyzer.common.Timeframe
 import ru.bodrov.analyzer.csv.CsvReader
 import ru.bodrov.analyzer.service.TickService
 import ru.bodrov.analyzer.source.CsvTickSource
@@ -15,7 +16,8 @@ class TickServiceTest {
     val resource = ClassPathResource("csv/valid.csv")
     val csvReader = CsvReader()
     val source = CsvTickSource(csvReader, resource)
-    val tickService: TickService = TickService(source)
+    val tradeStart = "10.00.00"
+    val tickService: TickService = TickService(source, tradeStart)
 
     @Test
     fun filteredByTickerTest() {
@@ -63,5 +65,20 @@ class TickServiceTest {
             )
 
         assertEquals(  2, ticksFiltered.size)
+    }
+
+    @Test
+    fun aggregateToCandlesTest() {
+        val stream = ClassPathResource("csv/check_aggregate.csv").inputStream
+
+        val ticks = csvReader.readTicks(stream)
+
+        val candles = tickService.aggregateToCandles("GC", ticks, Timeframe.M5)
+        assertEquals(2, candles.size)
+        assertEquals(4041.0, candles.iterator().next().open)
+        assertEquals(4041.3, candles.iterator().next().close)
+        assertEquals(4041.0, candles.iterator().next().low)
+        assertEquals(4041.8, candles.iterator().next().high)
+        assertEquals(5, candles.iterator().next().volume)
     }
 }

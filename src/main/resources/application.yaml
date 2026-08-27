@@ -3,4 +3,7 @@ spring:
     name: analyzer
 
 source:
-  GC_260716_260716.csv: classpath:source/GC_260716_260716.csv
+  csv: classpath:source/GC_260716_260716.csv
+
+trade:
+  start: 10.00.00
